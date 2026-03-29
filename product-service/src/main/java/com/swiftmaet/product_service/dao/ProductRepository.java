@@ -16,11 +16,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> findByCategory_name(String category);
     Page<Product> findAll(Pageable pageable);
 
-    @Query("""
-   SELECT p FROM Product p
-   WHERE LOWER(p.productName) LIKE %:keyword%
-      OR LOWER(p.description) LIKE %:keyword%
-""")
+    @Query("SELECT p FROM Product p   WHERE LOWER(p.productName) LIKE %:keyword% OR LOWER(p.description) LIKE %:keyword%")
     List<Product> searchByKeyword(@Param("keyword") String keyword);
 
     List<Product> findByPriceBetween(double minPrice, double maxPrice);

@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+         discovery:
+          locator:
+           enabled: true
+         routes:
+          - id: USER-SERVICE
+            uri: lb://USER-SERVICE
+            predicates:
+             - Path=/swiftmart/auth/**
+          - id: PRODUCT-SERVICE
+            uri: lb://PRODUCT-SERVICE
+            predicates:
+              - Path=/swiftmart/products/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+  endpoint:
+    gateway:
+      enabled: true
+info:
+  app:
+    name: gateway-service
+    description: "this is api gateway"
+    version: "1.0"
