@@ -26,4 +26,18 @@ jwt:
 server:
   port: 8085
 
+resilience4j:
+  retry:
+    instances:
+      productService:
+        maxAttempts: 3
+        waitDuration: 1s
+
+  circuitbreaker:
+    instances:
+      productService:
+        failureRateThreshold: 50
+        slidingWindowSize: 4
+        waitDurationInOpenState: 10s
+        minimumNumberOfCalls: 2
 

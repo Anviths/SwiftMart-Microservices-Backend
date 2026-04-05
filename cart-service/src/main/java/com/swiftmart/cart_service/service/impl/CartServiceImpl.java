@@ -11,6 +11,7 @@ import com.swiftmart.cart_service.client.ProductClient;
 import com.swiftmart.cart_service.client.dto.ProductResponse;
 import com.swiftmart.cart_service.repository.CartRepository;
 import com.swiftmart.cart_service.service.CartService;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +25,13 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final ProductClient productClient;
+    private final ProductServiceCaller serviceCaller;
     @Override
     public CartResponse addToCart(Long userId, AddToCartRequest request) {
         Cart cart=cartRepository.findByUserId(userId)
                 .orElseGet(()->creatNewCart(userId));
 
-        ProductResponse product=productClient.getProduct(request.getProductId());
+        ProductResponse product=serviceCaller. getProduct(request.getProductId());
 
         if (product == null ) {
             throw new RuntimeException("Product not available");
@@ -130,4 +132,6 @@ public class CartServiceImpl implements CartService {
                 .findFirst()
                 .orElseThrow(()->new ItemNotFoundException("Item Not Found"));
     }
+
+
 }
