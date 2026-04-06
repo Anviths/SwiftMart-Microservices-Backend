@@ -1,0 +1,12 @@
+package com.jsp.swiftmart.order_service.dto;
+
+import lombok.Data;
+
+@Data
+public class OrderItemResponse {
+    private Long id;
+
+    private Long productId;
+    private Integer quantity;
+    private Double price;
+}
