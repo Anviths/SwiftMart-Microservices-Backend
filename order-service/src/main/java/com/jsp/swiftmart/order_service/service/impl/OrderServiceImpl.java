@@ -23,6 +23,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(Long userId) {
         //find cart by user Id
         CartResponse response=cartClient.findCartByUserId(userId);
+        CartClient cartClient1=null;
         //find product by product id
         //find inventory
         //payment service later
