@@ -5,11 +5,20 @@ import com.jsp.swiftmart.order_service.client.InventoryClient;
 import com.jsp.swiftmart.order_service.client.ProductClient;
 import com.jsp.swiftmart.order_service.client.dto.CartResponse;
 import com.jsp.swiftmart.order_service.dao.OrderRepository;
+import com.jsp.swiftmart.order_service.dto.InventoryRequest;
 import com.jsp.swiftmart.order_service.dto.OrderResponse;
+import com.jsp.swiftmart.order_service.entity.Order;
+import com.jsp.swiftmart.order_service.entity.OrderItem;
+import com.jsp.swiftmart.order_service.entity.OrderStatus;
+import com.jsp.swiftmart.order_service.exception.CartException;
+import com.jsp.swiftmart.order_service.exception.OrderException;
 import com.jsp.swiftmart.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +31,51 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse createOrder(Long userId) {
         //find cart by user Id
-        CartResponse response=cartClient.findCartByUserId(userId);
-        
-        //find product by product id
+        CartResponse cart=cartClient.findCartByUserId(userId);
+
+        if (cart.getItems().isEmpty()){
+            throw new CartException("cart is empty");
+        }
+        List<InventoryRequest> requests=cart.getItems().stream()
+                .map(item->new InventoryRequest(
+                        item.getProductId(), item.getQuantity()
+                )).toList();
+
+        Boolean inStock=inventoryClient.checkStock(requests);
+
+        if(!inStock){
+            throw new OrderException("Some items are not in stock");
+        }
+
+        Order order=new Order();
+        order.setUserId(userId);
+        order.setOrderedAt(LocalDateTime.now());
+        order.setOrderStatus(OrderStatus.CREATED);
+
+        List<OrderItem> orderItems=cart.getItems().stream()
+                .map(item-> {
+                    OrderItem orderItem=new OrderItem();
+                    orderItem.setProductId(item.getProductId());
+                    orderItem.setQuantity(item.getQuantity());
+                    orderItem.setPrice(item.getPrice());
+                    orderItem.setOrder(order);
+                    return orderItem;
+                }).toList();
+
+     order.setOrderItems(orderItems);
+
+     order.setTotalAmount(cart.getTotalPrice());
+
+     inventoryClient.reduceStock(requests);
+
+     Order saved=orderRepository.save(order);
+     return new OrderResponse(saved);
         //find inventory
         //payment service later
-        return null;
+
     }
+
+
 
     @Override
     public OrderResponse findOrderByOrderId(Long userId, Long orderId) {
@@ -39,4 +86,6 @@ public class OrderServiceImpl implements OrderService {
     public Pageable findAllOrder(Long userId, int pageNo, int size) {
         return null;
     }
+
+
 }

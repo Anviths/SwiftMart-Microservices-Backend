@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -20,6 +21,8 @@ public class Order {
     private Long userId;
     private Double totalAmount;
     private LocalDateTime orderedAt;
+    private OrderStatus orderStatus;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "order")
     private List<OrderItem> orderItems=new ArrayList<>();
+
 }
