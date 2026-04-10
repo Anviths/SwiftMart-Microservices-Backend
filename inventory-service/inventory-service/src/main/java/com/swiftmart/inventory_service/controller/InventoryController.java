@@ -4,6 +4,7 @@ import com.swiftmart.inventory_service.dto.InventoryRequest;
 import com.swiftmart.inventory_service.dto.InventoryResponse;
 import com.swiftmart.inventory_service.dto.StockCheckResponse;
 import com.swiftmart.inventory_service.service.InventoryService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -57,20 +58,30 @@ public class InventoryController {
                 .status(HttpStatus.OK)
                 .body( inventoryService.getAllInventoryByProductId(productId));
     }
-    @PostMapping("/check")
-    public ResponseEntity<List<StockCheckResponse>> checkStock(@RequestBody List<InventoryRequest> requests){
+    @PostMapping("/check/{warehouseId}")
+    public ResponseEntity<List<StockCheckResponse>> checkStock(@RequestBody List<InventoryRequest> requests,@PathVariable Long warehouseId){
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body( inventoryService.checkStock(requests));
+                .body( inventoryService.checkStock(requests,warehouseId));
 
     }
 
-    @PostMapping("/reduce")
-    public ResponseEntity<Void> reduceStock(@RequestBody List<InventoryRequest> requests){
-        inventoryService.reduceStock(requests);
+    @PostMapping("/reduce/{warehouseId}")
+    public ResponseEntity<Void> reduceStock(@RequestBody List<InventoryRequest> requests,@PathVariable Long warehouseId){
+        inventoryService.reduceStock(requests,warehouseId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .build();
 
     }
+
+    @GetMapping("/all/{warehouseId}")
+    public ResponseEntity<List<InventoryResponse>> findAllByWareHouse(@PathVariable Long warehouseId){
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body( inventoryService.findAllByWareHouse(warehouseId));
+
+    }
+
 }

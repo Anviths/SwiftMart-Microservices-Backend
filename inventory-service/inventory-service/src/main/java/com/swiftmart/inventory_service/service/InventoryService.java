@@ -19,7 +19,9 @@ public interface InventoryService {
 
    List< InventoryResponse> getAllInventoryByProductId(long productId);
 
-    List<StockCheckResponse> checkStock(List<InventoryRequest> requests);
+    List<StockCheckResponse> checkStock(List<InventoryRequest> requests,Long warehouseId);
 
-    void reduceStock(List<InventoryRequest> requests);
+    void reduceStock(List<InventoryRequest> requests,Long warehouseId);
+
+     List<InventoryResponse> findAllByWareHouse(Long warehouseId);
 }

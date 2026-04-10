@@ -1,6 +1,7 @@
 package com.swiftmart.inventory_service.exception;
 
 import com.swiftmart.inventory_service.dto.ErrorResponse;
+import com.swiftmart.inventory_service.dto.InventoryRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -12,14 +13,7 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalException {
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
 
-
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later."
-
-        );
-    }
 
     private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String message) {
 
@@ -31,5 +25,23 @@ public class GlobalException {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(InventoryException.class)
+    public ResponseEntity<ErrorResponse> handleInvetoryException(InventoryException ex) {
+
+
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage()
+
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+
+
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later."
+
+        );
     }
 }

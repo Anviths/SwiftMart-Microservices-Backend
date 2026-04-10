@@ -93,11 +93,11 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public  List<StockCheckResponse> checkStock(List<InventoryRequest> requests) {
+    public  List<StockCheckResponse> checkStock(List<InventoryRequest> requests,Long wareHouseId) {
         List<Long> productsId=requests.stream()
                         .map(InventoryRequest::getProductId).toList();
 
-        List<Inventory> inventories= inventoryRepository.findAllByProductIdIn(productsId);
+        List<Inventory> inventories= inventoryRepository.findAllByProductIdInAndWarehouseId(productsId,wareHouseId);
 
         Map<Long,Inventory> inventoryMap=inventories.stream()
                 .collect(Collectors.toMap(Inventory::getProductId,i->i));
@@ -134,15 +134,17 @@ public class InventoryServiceImpl implements InventoryService {
     }
     @Transactional
     @Override
-    public void reduceStock(List<InventoryRequest> requests) {
+    public void reduceStock(List<InventoryRequest> requests,Long wareHouseId) {
         // get all
         List<Long> productIds=requests.stream()
                         .map(InventoryRequest::getProductId).toList();
-        Map<Long,Inventory> inventories = inventoryRepository.findAllByProductIdIn(productIds).stream()
-                .collect(Collectors.toMap(Inventory::getProductId,i->i));
+
+
+        Map<Long,Inventory> inventories = inventoryRepository.findAllByProductIdInAndWarehouseId(productIds,wareHouseId).stream()
+                .collect(Collectors.toMap(Inventory::getProductId,i-> i));
 
         for(InventoryRequest req:requests) {
-            Inventory inventory = inventories.get(req);
+            Inventory inventory = inventories.get(req.getProductId());
 
             if (inventory == null) {
                 throw new InventoryException("product not found " + req.getProductId());
@@ -167,6 +169,12 @@ public class InventoryServiceImpl implements InventoryService {
 
 
 
+    }
+
+    @Override
+    public List<InventoryResponse> findAllByWareHouse(Long warehouseId) {
+        return inventoryRepository.findAllByWarehouseId(warehouseId).stream()
+                .map(inv->new InventoryResponse(inv)).toList();
     }
 
     @Transactional
