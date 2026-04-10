@@ -2,6 +2,7 @@ package com.swiftmart.inventory_service.service;
 
 import com.swiftmart.inventory_service.dto.InventoryRequest;
 import com.swiftmart.inventory_service.dto.InventoryResponse;
+import com.swiftmart.inventory_service.dto.StockCheckResponse;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -17,4 +18,8 @@ public interface InventoryService {
     InventoryResponse getInventory(Long productId, Long warehouseId);
 
    List< InventoryResponse> getAllInventoryByProductId(long productId);
+
+    List<StockCheckResponse> checkStock(List<InventoryRequest> requests);
+
+    void reduceStock(List<InventoryRequest> requests);
 }

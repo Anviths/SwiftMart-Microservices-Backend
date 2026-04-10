@@ -7,6 +7,7 @@ import com.jsp.swiftmart.order_service.client.dto.CartResponse;
 import com.jsp.swiftmart.order_service.dao.OrderRepository;
 import com.jsp.swiftmart.order_service.dto.InventoryRequest;
 import com.jsp.swiftmart.order_service.dto.OrderResponse;
+import com.jsp.swiftmart.order_service.dto.StockCheckResponse;
 import com.jsp.swiftmart.order_service.entity.Order;
 import com.jsp.swiftmart.order_service.entity.OrderItem;
 import com.jsp.swiftmart.order_service.entity.OrderStatus;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,12 +43,22 @@ public class OrderServiceImpl implements OrderService {
                         item.getProductId(), item.getQuantity()
                 )).toList();
 
-        Boolean inStock=inventoryClient.checkStock(requests);
 
-        if(!inStock){
-            throw new OrderException("Some items are not in stock");
+
+        List<StockCheckResponse> stockResponses = inventoryClient.checkStock(requests);
+
+        List<StockCheckResponse> failedItems = stockResponses.stream()
+                .filter(res -> !res.isInStock())
+                .toList();
+
+        if (!failedItems.isEmpty()) {
+
+            String errorMessage = failedItems.stream()
+                    .map(item -> "Product " + item.getProductId() + ": " + item.getMessage())
+                    .collect(Collectors.joining(", "));
+
+            throw new OrderException("Order failed due to: " + errorMessage);
         }
-
         Order order=new Order();
         order.setUserId(userId);
         order.setOrderedAt(LocalDateTime.now());

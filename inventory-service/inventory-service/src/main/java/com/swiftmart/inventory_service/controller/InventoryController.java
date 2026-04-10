@@ -2,6 +2,7 @@ package com.swiftmart.inventory_service.controller;
 
 import com.swiftmart.inventory_service.dto.InventoryRequest;
 import com.swiftmart.inventory_service.dto.InventoryResponse;
+import com.swiftmart.inventory_service.dto.StockCheckResponse;
 import com.swiftmart.inventory_service.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,5 +56,21 @@ public class InventoryController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body( inventoryService.getAllInventoryByProductId(productId));
+    }
+    @PostMapping("/check")
+    public ResponseEntity<List<StockCheckResponse>> checkStock(@RequestBody List<InventoryRequest> requests){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body( inventoryService.checkStock(requests));
+
+    }
+
+    @PostMapping("/reduce")
+    public ResponseEntity<Void> reduceStock(@RequestBody List<InventoryRequest> requests){
+        inventoryService.reduceStock(requests);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+
     }
 }
