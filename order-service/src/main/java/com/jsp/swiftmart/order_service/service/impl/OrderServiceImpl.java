@@ -82,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
 
      Order saved=orderRepository.save(order);
      return new OrderResponse(saved);
-        //find inventory
+
         //payment service later
 
     }

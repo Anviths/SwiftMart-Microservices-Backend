@@ -97,7 +97,7 @@ public class InventoryServiceImpl implements InventoryService {
         List<Long> productsId=requests.stream()
                         .map(InventoryRequest::getProductId).toList();
 
-        List<Inventory> inventories= inventoryRepository.findAllByProductId(productsId);
+        List<Inventory> inventories= inventoryRepository.findAllByProductIdIn(productsId);
 
         Map<Long,Inventory> inventoryMap=inventories.stream()
                 .collect(Collectors.toMap(Inventory::getProductId,i->i));
@@ -138,7 +138,7 @@ public class InventoryServiceImpl implements InventoryService {
         // get all
         List<Long> productIds=requests.stream()
                         .map(InventoryRequest::getProductId).toList();
-        Map<Long,Inventory> inventories = inventoryRepository.findAllByProductId(productIds).stream()
+        Map<Long,Inventory> inventories = inventoryRepository.findAllByProductIdIn(productIds).stream()
                 .collect(Collectors.toMap(Inventory::getProductId,i->i));
 
         for(InventoryRequest req:requests) {
