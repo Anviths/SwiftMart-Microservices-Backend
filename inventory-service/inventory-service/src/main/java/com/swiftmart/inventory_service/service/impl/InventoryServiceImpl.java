@@ -132,9 +132,40 @@ public class InventoryServiceImpl implements InventoryService {
 
         return responseList;
     }
-
+    @Transactional
     @Override
     public void reduceStock(List<InventoryRequest> requests) {
+        // get all
+        List<Long> productIds=requests.stream()
+                        .map(InventoryRequest::getProductId).toList();
+        Map<Long,Inventory> inventories = inventoryRepository.findAllByProductId(productIds).stream()
+                .collect(Collectors.toMap(Inventory::getProductId,i->i));
+
+        for(InventoryRequest req:requests) {
+            Inventory inventory = inventories.get(req);
+
+            if (inventory == null) {
+                throw new InventoryException("product not found " + req.getProductId());
+
+
+            }
+
+            if (inventory.getAvailableQuantity() < req.getQuantity()) {
+                throw new InventoryException("Stock changed, insufficient for product: " + req.getProductId());
+
+            }
+        }
+            for (InventoryRequest req : requests) {
+
+                Inventory inventory = inventories.get(req.getProductId());
+
+                inventory.setAvailableQuantity(
+                        inventory.getAvailableQuantity() - req.getQuantity()
+                );
+            }
+        inventoryRepository.saveAll(inventories.values());
+
+
 
     }
 
