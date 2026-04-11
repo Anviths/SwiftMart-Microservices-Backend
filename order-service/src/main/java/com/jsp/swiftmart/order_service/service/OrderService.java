@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
 
-    OrderResponse createOrder(Long useId);
+    OrderResponse createOrder(Long useId,Long warehouseId);
     OrderResponse findOrderByOrderId(Long userId,Long orderId);
     Pageable findAllOrder(Long userId,int pageNo,int size);
 }

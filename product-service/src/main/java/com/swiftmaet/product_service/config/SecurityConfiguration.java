@@ -29,7 +29,7 @@ public class SecurityConfiguration {
                 .cors(cors->cors.disable())
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth-> auth.
-                        requestMatchers(HttpMethod.GET,"/swiftmart/products/**","/error","/swiftmart/products/inventory/**").permitAll()
+                        requestMatchers("/swiftmart/products/**","/error","/swiftmart/products/inventory/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

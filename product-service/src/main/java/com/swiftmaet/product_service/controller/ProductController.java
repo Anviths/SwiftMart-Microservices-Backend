@@ -23,7 +23,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<ProductResponse> addProduct(@RequestBody ProducRequest producRequest) {
 

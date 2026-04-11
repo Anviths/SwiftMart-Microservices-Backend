@@ -2,7 +2,6 @@ package com.jsp.swiftmart.order_service.service.impl;
 
 import com.jsp.swiftmart.order_service.client.CartClient;
 import com.jsp.swiftmart.order_service.client.InventoryClient;
-import com.jsp.swiftmart.order_service.client.ProductClient;
 import com.jsp.swiftmart.order_service.client.dto.CartResponse;
 import com.jsp.swiftmart.order_service.dao.OrderRepository;
 import com.jsp.swiftmart.order_service.dto.InventoryRequest;
@@ -21,17 +20,16 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
+//product id 31 ,32
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final CartClient cartClient;
-    private final ProductClient productClient;
     private final InventoryClient inventoryClient;
     @Override
-    public OrderResponse createOrder(Long userId) {
+    public OrderResponse createOrder(Long userId,Long warehouseId) {
         //find cart by user Id
         CartResponse cart=cartClient.findCartByUserId(userId);
 
@@ -45,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-        List<StockCheckResponse> stockResponses = inventoryClient.checkStock(requests);
+        List<StockCheckResponse> stockResponses = inventoryClient.checkStock(requests,warehouseId);
 
         List<StockCheckResponse> failedItems = stockResponses.stream()
                 .filter(res -> !res.isInStock())
@@ -78,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
 
      order.setTotalAmount(cart.getTotalPrice());
 
-     inventoryClient.reduceStock(requests);
+     inventoryClient.reduceStock(requests,warehouseId);
 
      Order saved=orderRepository.save(order);
      return new OrderResponse(saved);
