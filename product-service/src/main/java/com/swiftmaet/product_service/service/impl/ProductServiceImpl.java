@@ -188,6 +188,11 @@ public class ProductServiceImpl implements ProductService {
 //                );
     }
 
+    @Override
+    public Boolean check(long productId) {
+        return productRepository.existsById(productId);
+    }
+
 
     private Category getOrCreateCategory(String categoryName) {
         return categoryRepository.findByName(categoryName)

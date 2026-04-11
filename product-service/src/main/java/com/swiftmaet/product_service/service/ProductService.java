@@ -36,4 +36,6 @@ public interface ProductService {
      List<ProductResponse> filterByPrice(Double min, Double max);
 
     ProductInventoryResponse getProduct(Long productId);
+
+     Boolean check(long productId);
 }

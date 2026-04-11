@@ -1,5 +1,6 @@
 package com.swiftmart.inventory_service.service.impl;
 
+import com.swiftmart.inventory_service.client.ProductClient;
 import com.swiftmart.inventory_service.dto.InventoryRequest;
 import com.swiftmart.inventory_service.dto.InventoryResponse;
 import com.swiftmart.inventory_service.dto.StockCheckResponse;
@@ -23,10 +24,15 @@ import java.util.stream.Collectors;
 public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
-
+    private final ProductClient productClient;
     @Transactional
     @Override
     public InventoryResponse addInventory(InventoryRequest inventoryRequest) {
+
+       Boolean result= productClient.checkProduct(inventoryRequest.getProductId());
+       if(!result){
+           throw new InventoryException("product not found");
+       }
         Inventory inventory = inventoryRepository
                 .findByProductIdAndWarehouseId(
                         inventoryRequest.getProductId(),

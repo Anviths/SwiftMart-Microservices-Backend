@@ -66,6 +66,12 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.findProductById(productId));
     }
 
+    @GetMapping("check/{productId}")
+    public ResponseEntity<Boolean> check(@PathVariable long productId) {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.check(productId));
+    }
+
 
     @GetMapping("/search")
     public ResponseEntity<List<ProductResponse>> searchProducts(
