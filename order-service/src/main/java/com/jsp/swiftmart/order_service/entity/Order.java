@@ -15,10 +15,12 @@ import java.util.List;
 public class Order {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
     private Long userId;
     private Double totalAmount;
     private LocalDateTime orderedAt;
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "order")
     private List<OrderItem> orderItems=new ArrayList<>();

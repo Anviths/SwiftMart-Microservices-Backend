@@ -22,5 +22,7 @@ public class Cart {
     private List<CartItem> items=new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @Column(nullable = true)
+    private boolean isActive;
 
 }

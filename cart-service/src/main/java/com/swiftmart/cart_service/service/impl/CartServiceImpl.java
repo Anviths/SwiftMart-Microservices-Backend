@@ -9,11 +9,12 @@ import com.swiftmart.cart_service.exception.CartException;
 import com.swiftmart.cart_service.exception.ItemNotFoundException;
 import com.swiftmart.cart_service.client.ProductClient;
 import com.swiftmart.cart_service.client.dto.ProductResponse;
+import com.swiftmart.cart_service.exception.ProductServiceException;
 import com.swiftmart.cart_service.repository.CartRepository;
 import com.swiftmart.cart_service.service.CartService;
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,12 +30,13 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartResponse addToCart(Long userId, AddToCartRequest request) {
         Cart cart=cartRepository.findByUserId(userId)
-                .orElseGet(()->creatNewCart(userId));
+                .orElseGet(()->creatNewCart(userId,true));
+
 
         ProductResponse product=serviceCaller. getProduct(request.getProductId());
 
         if (product == null ) {
-            throw new RuntimeException("Product not available");
+            throw new ProductServiceException("Product not available");
         }
         Optional< CartItem> existingItem=cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(request.getProductId()))
@@ -67,6 +69,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse getCart(Long userId) {
+
         return mapToResponse( cartRepository.findByUserId(userId)
                 .orElseThrow(()-> new CartException("cart is Empty")));
     }
@@ -98,12 +101,20 @@ public class CartServiceImpl implements CartService {
         return mapToResponse(cartRepository.save(cart));
     }
 
+    @Override
+    @Transactional
+    public void deleteCart(Long userId) {
+       Cart cart= cartRepository.findByUserId(userId).orElseThrow(()-> new CartException("cart not found"));
+        cart.setActive(false);
+        cartRepository.save(cart);
+    }
 
 
-    private Cart creatNewCart(Long userId) {
+    private Cart creatNewCart(Long userId,boolean isActive) {
         Cart cart=new Cart();
         cart.setUserId(userId);
         cart.setCreatedAt(LocalDateTime.now());
+        cart.setActive(isActive);
        return cart;
     }
 
@@ -123,7 +134,7 @@ public class CartServiceImpl implements CartService {
                         item.getQuantity(),
                         item.getPrice()
                 )).toList();
-        return new CartResponse(cart.getUserId(),items,cart.getTotal_price());
+        return new CartResponse(cart.getUserId(),items,cart.getTotal_price(), cart.isActive());
     }
 
     private CartItem findItem(Cart cart,Long productId ){

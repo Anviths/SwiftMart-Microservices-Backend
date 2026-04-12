@@ -12,4 +12,6 @@ public interface CartService {
      CartResponse increaseQuantity(Long userId, Long productId);
 
      CartResponse decreaseQuantity(Long userId, Long productId);
+
+     void deleteCart(Long userId);
 }

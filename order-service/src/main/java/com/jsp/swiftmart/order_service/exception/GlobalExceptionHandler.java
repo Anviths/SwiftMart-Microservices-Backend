@@ -17,8 +17,8 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse=new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal_ERROR",
+                HttpStatus.BAD_REQUEST.value(),
+                 "Cart exception",
                 e.getMessage(),
                 request.getRequestURI()
         );
@@ -31,28 +31,32 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse=new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.BAD_GATEWAY .value(),
+                "Product service down",
                 e.getMessage(),
-                "Something went wrong",
                 request.getRequestURI()
         );
 
         return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> exception(Exception e, HttpServletRequest request){
+    @ExceptionHandler(CartServiceException.class)
+    public ResponseEntity<ErrorResponse> handleCartServiceException(CartServiceException e, HttpServletRequest request){
 
         ErrorResponse errorResponse=new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.BAD_GATEWAY .value(),
+                "Cart service down",
                 e.getMessage(),
-                "Something went wrong",
                 request.getRequestURI()
         );
 
         return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+
+
+
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> runTimeException(RuntimeException e, HttpServletRequest request){

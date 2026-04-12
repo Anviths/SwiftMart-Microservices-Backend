@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-@FeignClient(name = "INVENTORY-SERVICE")
+@FeignClient(name = "INVENTORY-SERVICE",fallback = InventoryFallback.class)
 public interface InventoryClient {
     @PostMapping("/swiftmart/inventory/check/{warehouseId}")
     List<StockCheckResponse> checkStock(@RequestBody List<InventoryRequest> requests,@PathVariable Long warehouseId);

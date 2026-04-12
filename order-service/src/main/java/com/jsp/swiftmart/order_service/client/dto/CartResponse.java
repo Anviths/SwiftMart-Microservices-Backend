@@ -10,4 +10,5 @@ public class CartResponse {
     private Long userId;
     private List<CartItemDto> items;
     private Double totalPrice;
+    private boolean isActive;
 }

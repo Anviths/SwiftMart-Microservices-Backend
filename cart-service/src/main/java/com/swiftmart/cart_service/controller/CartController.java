@@ -40,4 +40,10 @@ public class CartController {
         return ResponseEntity.ok(cartService.decreaseQuantity(userId,productId));
     }
 
+    @DeleteMapping("/delete")
+   public ResponseEntity<String> deleteCart(@RequestParam Long userId){
+        cartService.deleteCart(userId);
+        return ResponseEntity.ok("Success");
+
+    }
 }

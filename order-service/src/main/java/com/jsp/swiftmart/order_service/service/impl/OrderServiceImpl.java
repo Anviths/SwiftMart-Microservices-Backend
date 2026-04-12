@@ -16,6 +16,7 @@ import com.jsp.swiftmart.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,12 +28,16 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final CartClient cartClient;
-    private final InventoryClient inventoryClient;
+    private final CheckStockWithResilience inventoryClient;
     @Override
+    @Transactional
     public OrderResponse createOrder(Long userId,Long warehouseId) {
         //find cart by user Id
         CartResponse cart=cartClient.findCartByUserId(userId);
 
+        if (!cart.isActive()) {
+            throw new CartException("Cart already ordered");
+        }
         if (cart.getItems().isEmpty()){
             throw new CartException("cart is empty");
         }
@@ -43,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-        List<StockCheckResponse> stockResponses = inventoryClient.checkStock(requests,warehouseId);
+        List<StockCheckResponse> stockResponses = inventoryClient.checkStockWithResilience(requests,warehouseId);
 
         List<StockCheckResponse> failedItems = stockResponses.stream()
                 .filter(res -> !res.isInStock())
@@ -75,11 +80,14 @@ public class OrderServiceImpl implements OrderService {
      order.setOrderItems(orderItems);
 
      order.setTotalAmount(cart.getTotalPrice());
+        Order saved=orderRepository.save(order);
 
-     inventoryClient.reduceStock(requests,warehouseId);
+     inventoryClient.reduceStockWithResilience(requests,warehouseId);
 
-     Order saved=orderRepository.save(order);
-     return new OrderResponse(saved);
+        order.setOrderStatus(OrderStatus.SUCCESS);
+        orderRepository.save(saved);
+       cartClient.deleteCart(userId);
+       return new OrderResponse(saved);
 
         //payment service later
 
